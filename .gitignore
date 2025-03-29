@@ -40,3 +40,4 @@ ENV/
 # Cache
 .cache/
 .pytest_cache/
+diff.txt

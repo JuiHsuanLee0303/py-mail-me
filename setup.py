@@ -29,5 +29,20 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "python-dotenv>=0.19.0",
+        "tenacity>=8.0.0",  # For retry mechanism
+        "aiosmtplib>=2.0.0",  # For async support
     ],
+    extras_require={
+        'dev': [
+            'pytest>=7.0.0',
+            'pytest-asyncio>=0.17.0',
+            'black>=22.0.0',
+            'isort>=5.0.0',
+            'mypy>=0.950',
+        ],
+        'docs': [
+            'sphinx>=4.0.0',
+            'sphinx-rtd-theme>=1.0.0',
+        ],
+    },
 ) 

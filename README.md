@@ -11,6 +11,10 @@
 - **Quick integration via decorators or context managers**
 - **Customizable email recipients, subjects, and content**
 - **Integration with Python's logging module**
+- **Asynchronous email sending support**
+- **Automatic retry mechanism for network issues**
+- **HTML and text email templates**
+- **Enhanced error handling with custom exceptions**
 
 ---
 
@@ -57,7 +61,7 @@ with EmailNotifier(
     email="you@example.com",
     subject="Data Processing Complete",
     attach_logs=True,
-    password="your password"
+    password="your-app-password"
 ):
     # Main work here
     print("Processing...")
@@ -93,6 +97,8 @@ Or pass configuration parameters directly in the code.
 | port        | int              | No       | 587              | SMTP server port                           |
 | username    | str              | No       | EMAIL_USER       | SMTP username (defaults to env var)        |
 | password    | str              | No       | EMAIL_PASSWORD   | SMTP password (defaults to env var)        |
+| async_mode  | bool             | No       | False            | Enable asynchronous email sending          |
+| max_retries | int              | No       | 3                | Maximum number of retry attempts           |
 
 ### Environment Variables
 
@@ -173,6 +179,52 @@ with EmailNotifier(
         raise  # EmailNotifier will catch and send error notification
 ```
 
+### 4. Asynchronous Email Sending
+
+Using async mode for concurrent email sending:
+
+```python
+import asyncio
+from py_mail_me import EmailNotifier
+
+async def main():
+    async with EmailNotifier(
+        email="admin@example.com",
+        subject="Async Task Complete",
+        async_mode=True,
+        password="your-app-password"
+    ) as notifier:
+        # Your async task here
+        await some_async_task()
+
+asyncio.run(main())
+```
+
+### 5. Using HTML Templates
+
+Sending HTML-formatted emails:
+
+```python
+from py_mail_me import EmailNotifier
+from py_mail_me.templates import SUCCESS_TEMPLATE
+
+with EmailNotifier(
+    email="admin@example.com",
+    subject="Task Status",
+    password="your-app-password"
+) as notifier:
+    # Your task here
+    result = process_data()
+
+    # Send HTML email with custom template
+    notifier.send_notification(
+        title="Data Processing Complete",
+        message="Your data has been processed successfully",
+        details={"processed_items": 100, "success_rate": "98%"},
+        template=SUCCESS_TEMPLATE
+    )
+```
+
 Complete example code can be found in the `examples` directory.
 
 ---
@@ -192,7 +244,10 @@ Complete example code can be found in the `examples` directory.
 
 - [x] Basic email notification functionality
 - [x] Log file and output attachments
-- [ ] Error catching and notification
+- [x] Error catching and notification
+- [x] Asynchronous email sending support
+- [x] Automatic retry mechanism
+- [x] HTML email templates
 - [ ] Support for multiple notification channels (Telegram, Slack, LINE Notify)
 - [ ] Web UI for notification history management
 - [ ] Automatic Python logging module integration
