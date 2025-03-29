@@ -1,185 +1,225 @@
 # py-mail-me
 
-**py-mail-me** 是一個簡單易用的 Python 套件，讓你在任務（如資料處理、模型訓練、爬蟲等）完成後，自動寄送 Email 通知，並附上 log 或執行輸出。適合長時間執行的程式、定期任務、CI/CD 流程、自動化腳本等。
+**py-mail-me** is a simple Python package that automatically sends email notifications after task completion (such as data processing, model training, web scraping, etc.), with attached logs or execution outputs. It's perfect for long-running programs, scheduled tasks, CI/CD pipelines, and automation scripts.
 
 ---
 
-## 特點 Features
+## Features
 
-- **任務完成後自動發送通知信件**
-- **支援附加 log 檔或輸出檔案**
-- **可使用裝飾器或 context manager 快速整合**
-- **自訂 Email 收件人、主旨與內容**
-- **支援 logging 模組整合**
-
----
-
-## 安裝 Installation
-
-```bash
-pip install py-mail-me
-```
-
-或從 GitHub 安裝最新版本：
-
-```bash
-pip install git+https://github.com/juihsuanlee0303/py-mail-me.git
-```
+- **Automatic email notifications upon task completion**
+- **Support for log file and output attachments**
+- **Quick integration via decorators or context managers**
+- **Customizable email recipients, subjects, and content**
+- **Integration with Python's logging module**
 
 ---
 
-## 快速開始 Quick Start
+## Installation
 
-### 使用裝飾器（Decorator）
+1. Install directly by `pip install` (**not available now**)
+
+   ```bash
+   pip install py-mail-me
+   ```
+
+2. Or install the latest version from GitHub:
+
+   ```bash
+   pip install git+https://github.com/juihsuanlee0303/py-mail-me.git
+   ```
+
+---
+
+## Quick Start
+
+### Using the Decorator
 
 ```python
 from py_mail_me import py_mail_me
 
 @py_mail_me(
     email="you@example.com",
-    subject="任務完成通知",
+    subject="Task Completion Notification",
     attach_logs=True,
-    password="your password"
+    password="your-app-password"
 )
 def long_running_task():
-    print("執行中...")
-    # 任務邏輯
+    print("Processing...")
+    # Task logic here
 ```
 
-### 使用 context manager
+### Using the Context Manager
 
 ```python
 from py_mail_me import EmailNotifier
 
 with EmailNotifier(
     email="you@example.com",
-    subject="資料處理完成",
+    subject="Data Processing Complete",
     attach_logs=True,
     password="your password"
 ):
-    # 執行主要工作
-    print("處理中...")
+    # Main work here
+    print("Processing...")
 ```
 
 ---
 
-## 設定 Configuration
+## Configuration
 
-你可以透過環境變數或 `.env` 檔設定 email 寄信帳號：
+Set up email credentials using environment variables or a `.env` file:
 
 ```bash
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-password-or-app-password
+EMAIL_PASSWORD=your-app-password
 ```
 
-或程式中直接傳入設定參數。
+Or pass configuration parameters directly in the code.
 
 ---
 
-## 使用範例 Examples
+## Parameters
 
-在 `examples` 目錄中提供了多個實際應用範例：
+### EmailNotifier and py_mail_me Parameters
 
-### 1. 機器學習訓練通知 (decorator_example.py)
+| Parameter   | Type             | Required | Default          | Description                                |
+| ----------- | ---------------- | -------- | ---------------- | ------------------------------------------ |
+| email       | str or List[str] | Yes      | -                | Email address(es) to receive notifications |
+| subject     | str              | No       | "Task Completed" | Email subject line                         |
+| attach_logs | bool             | No       | False            | Whether to attach execution logs           |
+| host        | str              | No       | "smtp.gmail.com" | SMTP server host                           |
+| port        | int              | No       | 587              | SMTP server port                           |
+| username    | str              | No       | EMAIL_USER       | SMTP username (defaults to env var)        |
+| password    | str              | No       | EMAIL_PASSWORD   | SMTP password (defaults to env var)        |
 
-使用裝飾器方式在模型訓練完成後發送通知：
+### Environment Variables
+
+| Variable       | Required | Default          | Description                             |
+| -------------- | -------- | ---------------- | --------------------------------------- |
+| EMAIL_HOST     | No       | "smtp.gmail.com" | SMTP server host                        |
+| EMAIL_PORT     | No       | 587              | SMTP server port                        |
+| EMAIL_USER     | Yes\*    | -                | SMTP username (required if not in code) |
+| EMAIL_PASSWORD | Yes\*    | -                | SMTP password (required if not in code) |
+
+\* Either environment variables or direct parameters must be provided for authentication.
+
+### Gmail Setup
+
+If using Gmail:
+
+1. Enable 2-Step Verification in your Google Account
+2. Generate an App Password:
+   - Go to Google Account Settings
+   - Security > 2-Step Verification > App passwords
+   - Select "Mail" and your device
+   - Use the generated password in EMAIL_PASSWORD
+
+---
+
+## Examples
+
+The `examples` directory contains several practical use cases:
+
+### 1. Machine Learning Training Notification (decorator_example.py)
+
+Using a decorator to send notifications after model training:
 
 ```python
 @py_mail_me(
     email="your-email@gmail.com",
-    subject="模型訓練完成通知",
+    subject="Model Training Complete",
     attach_logs=True,
-    password="your password"
+    password="your-app-password"
 )
 def train_model():
-    logger.info("開始訓練模型...")
-    # 訓練過程...
-    logger.info("模型訓練完成！")
+    logger.info("Starting model training...")
+    # Training process...
+    logger.info("Training complete!")
 ```
 
-### 2. 網頁爬蟲任務 (context_manager_example.py)
+### 2. Web Scraping Task (context_manager_example.py)
 
-使用 context manager 在爬蟲任務完成後發送通知給多個收件人：
+Using a context manager to send notifications to multiple recipients after web scraping:
 
 ```python
 with EmailNotifier(
     email=["admin@example.com", "team@example.com"],
-    subject="網站爬蟲完成通知",
+    subject="Web Scraping Complete",
     attach_logs=True,
     password="your password"
 ):
-    logger.info("開始執行爬蟲任務...")
-    # 爬蟲過程...
-    logger.info("爬蟲完成")
+    logger.info("Starting web scraping task...")
+    # Scraping process...
+    logger.info("Scraping complete")
 ```
 
-### 3. 錯誤處理 (error_handling_example.py)
+### 3. Error Handling (error_handling_example.py)
 
-展示如何在任務失敗時自動發送錯誤通知：
+Demonstrating automatic error notifications:
 
 ```python
 with EmailNotifier(
     email="admin@example.com",
-    subject="資料處理狀態通知",
+    subject="Data Processing Status",
     attach_logs=True,
     password="your password"
 ):
     try:
         result = process_data(invalid_data)
     except Exception as e:
-        logger.error(f"處理失敗: {str(e)}")
-        raise  # EmailNotifier 會捕獲錯誤並發送通知
+        logger.error(f"Processing failed: {str(e)}")
+        raise  # EmailNotifier will catch and send error notification
 ```
 
-完整的範例程式碼可以在 `examples` 目錄中找到。
+Complete example code can be found in the `examples` directory.
 
 ---
 
-## 適用場景 Use Cases
+## Use Cases
 
-- 資料處理流程（ETL、資料清洗）
-- 機器學習訓練任務
-- 爬蟲與報表生成
-- 每日/每週定時排程任務
-- 自動化測試或部署完成後通知
-- 需要遠端通知的 CLI 工具
-
----
-
-## 發展規劃 Roadmap
-
-- [x] 基本 email 通知功能
-- [x] 附加 log 檔案或任務輸出
-- [ ] 支援錯誤捕捉並寄出錯誤通知
-- [ ] 支援多通訊方式（如 Telegram, Slack, LINE Notify）
-- [ ] 建立 Web UI 管理通知歷史紀錄
-- [ ] 整合 Python logging 模組自動紀錄
+- Data processing workflows (ETL, data cleaning)
+- Machine learning training tasks
+- Web scraping and report generation
+- Daily/weekly scheduled tasks
+- Automated testing or deployment notifications
+- Remote notifications for CLI tools
 
 ---
 
-## 貢獻方式 Contributing
+## Roadmap
 
-歡迎發送 PR、開 issue 討論新功能或改善設計。
-
-1. Fork 本專案
-2. 建立功能分支 (`git checkout -b feature/my-feature`)
-3. 提交更改 (`git commit -am 'Add new feature'`)
-4. Push 到分支 (`git push origin feature/my-feature`)
-5. 發送 Pull Request
+- [x] Basic email notification functionality
+- [x] Log file and output attachments
+- [ ] Error catching and notification
+- [ ] Support for multiple notification channels (Telegram, Slack, LINE Notify)
+- [ ] Web UI for notification history management
+- [ ] Automatic Python logging module integration
 
 ---
 
-## 授權 License
+## Contributing
+
+Contributions are welcome! Feel free to submit PRs or open issues to discuss new features or improvements.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/my-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/my-feature`)
+5. Submit a Pull Request
+
+---
+
+## License
 
 MIT License
 
 ---
 
-## 聯絡 Contact
+## Contact
 
-有問題或建議歡迎聯絡作者：
+For questions or suggestions, please contact:
 
-- GitHub: [your-username](https://github.com/your-username)
-- Email: `your-email@example.com`
+- GitHub: [juihsuanlee0303](https://github.com/juihsuanlee0303)
+- Email: juihsuanlee0303@gmail.com
